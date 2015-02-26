@@ -373,6 +373,7 @@ int main(int argc, char *argv[])
 				if (event.key.keysym.scancode == SDL_SCANCODE_SPACE){
 					if (state == TITLE){
 						state = GAME;
+						score = 0;
 						win = false;
 						for (int i = 0; i < enemies.size(); ++i){
 							if (!enemies[i].isVis()){
