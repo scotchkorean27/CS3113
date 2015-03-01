@@ -337,9 +337,10 @@ int main(int argc, char *argv[])
 	set<int> aliveE;
 	SDL_Init(SDL_INIT_VIDEO);
 	displayWindow = SDL_CreateWindow("My Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 800, SDL_WINDOW_OPENGL);
-	glViewport(0, 0, 800, 800);
-	glOrtho(-1, 1, -1, 1, -1, 1);
 	SDL_GLContext context = SDL_GL_CreateContext(displayWindow);
+	glViewport(0, 0, 800, 800);
+	glMatrixMode(GL_PROJECTION);
+	glOrtho(-1, 1, -1, 1, -1, 1);
 	SDL_GL_MakeCurrent(displayWindow, context);
 	bool done = false;
 	float lastFrameTicks = 0.0f;
