@@ -3,6 +3,7 @@
 #include <SDL_opengl.h>
 #include <SDL_image.h>
 #include <SDL_surface.h>
+#include <SDL_mixer.h>
 #include <vector>
 #include <queue>
 #include "Object.h"
@@ -49,4 +50,5 @@ private:
 	int mapHeight;
 	unsigned int** levelData;
 	float TILE_SIZE;
+	Mix_Music *music;
 };

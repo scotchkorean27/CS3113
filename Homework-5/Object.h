@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <SDL_surface.h>
+#include <SDL_mixer.h>
 
 
 class Entity{
@@ -14,6 +15,7 @@ public:
 	Entity(int texture, float xp, float yp, float h, float w);
 	~Entity();
 	void Draw();
+	void ScrollDraw(float px, float py);
 	void setPos(float xp, float yp);
 	void move(float xp, float yp);
 	bool overlaps(Entity& other);
@@ -49,9 +51,12 @@ class Bullet : public Entity{
 public:
 	Bullet(int tex, float xp, float yp, float h, float w, bool upmov);
 	~Bullet();
-	void Update();
+	void Update(unsigned int** levelData);
 	void Render();
+	void Render(float px, float py);
 	void setDir(bool right);
+
+	void xwallcols(unsigned int** levelData);
 private:
 	float vspeed;
 	float angle;
@@ -126,6 +131,8 @@ private:
 	bool lcol;
 	bool rcol;
 	bool rface;
+	Mix_Chunk *jSound;
+	Mix_Chunk *sSound;
 };
 
 

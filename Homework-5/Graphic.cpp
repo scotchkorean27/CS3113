@@ -9,6 +9,58 @@
 #include "Physics.h"
 using namespace std;
 
+void DrawScrollingLevel(int tex, unsigned int** levelData, int SPRITE_COUNT_X, int SPRITE_COUNT_Y, 
+	float TILE_SIZE, int LEVEL_HEIGHT, int LEVEL_WIDTH, float xoff, float yoff){
+	glBindTexture(GL_TEXTURE_2D, tex);
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glLoadIdentity();
+	float xtot = xoff + -TILE_SIZE * LEVEL_WIDTH / 2;
+	float ytot = yoff + TILE_SIZE * LEVEL_HEIGHT / 2;
+	glTranslatef(xtot, ytot, 0.0f);
+	float texture_size = 1.0 / 16.0f;
+
+	vector<float> vertexData;
+	vector<float> texCoordData;
+
+	for (int y = 0; y < LEVEL_HEIGHT; y++) {
+		for (int x = 0; x < LEVEL_WIDTH; x++) {
+			if (levelData[y][x] != 0){
+				float u = (float)(((int)levelData[y][x]) % SPRITE_COUNT_X) / (float)SPRITE_COUNT_X;
+				float v = (float)(((int)levelData[y][x]) / SPRITE_COUNT_X) / (float)SPRITE_COUNT_Y;
+
+				float spriteWidth = 1.0f / (float)SPRITE_COUNT_X;
+				float spriteHeight = 1.0f / (float)SPRITE_COUNT_Y;
+
+				vertexData.insert(vertexData.end(), {
+					TILE_SIZE * x, -TILE_SIZE * y,
+					TILE_SIZE * x, (-TILE_SIZE * y) - TILE_SIZE,
+					(TILE_SIZE * x) + TILE_SIZE, (-TILE_SIZE * y) - TILE_SIZE,
+					(TILE_SIZE * x) + TILE_SIZE, -TILE_SIZE * y
+				});
+
+				texCoordData.insert(texCoordData.end(), { u, v,
+					u, v + (spriteHeight),
+					u + spriteWidth, v + (spriteHeight),
+					u + spriteWidth, v
+				});
+			}
+		}
+	}
+	glVertexPointer(2, GL_FLOAT, 0, vertexData.data());
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glTexCoordPointer(2, GL_FLOAT, 0, texCoordData.data());
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDrawArrays(GL_QUADS, 0, LEVEL_HEIGHT * LEVEL_WIDTH);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_BLEND);
+
+}
+
+
 void DrawLevel(int tex, unsigned int** levelData, int SPRITE_COUNT_X, int SPRITE_COUNT_Y, float TILE_SIZE, int LEVEL_HEIGHT, int LEVEL_WIDTH){
 	glBindTexture(GL_TEXTURE_2D, tex);
 	glEnable(GL_TEXTURE_2D);

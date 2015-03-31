@@ -11,6 +11,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <SDL_mixer.h>
 using namespace std;
 
 #define FIXED_TIMESTEP 0.033333f
@@ -84,7 +85,7 @@ bool Game::readLayerData(std::ifstream &stream) {
 }
 void Game::placeEntity(string type, int x, int y){
 	if (type == "Player"){
-		Player p(playtex, x - (TILE_SIZE * 128 / 2), y - (TILE_SIZE * 32 / 2));
+		Player p(playtex, x , y );
 		player = p;
 		
 	}
@@ -137,6 +138,7 @@ player(){
 
 }
 Game::~Game(){
+	Mix_FreeMusic(music);
 	SDL_Quit();
 }
 void Game::Init(){
@@ -171,8 +173,8 @@ void Game::Init(){
 			readEntityData(infile);
 		}
 	}
-
-	
+	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
+	music = Mix_LoadMUS("DoDWBGM.mp3");
 
 }
 void Game::Update(){
@@ -190,7 +192,7 @@ void Game::Update(){
 		player.Update(levelData);
 
 		for (int i = 0; i < pbullets.size(); ++i){
-			pbullets[i].Update();
+			pbullets[i].Update(levelData);
 		}
 		for (int i = 0; i < enemies.size(); ++i){
 			enemies[i].Update(walls);
@@ -252,15 +254,19 @@ void Game::Render(){
 		DrawStr(fonttex, "Press SPACE to start.", 0.1, -0.06, 1, 1, 1, 1, -0.55, 0);
 	}
 	else if (state == 1){
-		DrawLevel(flotex, levelData, 24, 16, 0.075, mapHeight, mapWidth);
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		DrawScrollingLevel(flotex, levelData, 24, 16, 0.075, mapHeight, mapWidth, -player.getx(), -player.gety());
+		
+		
 		player.Render();
 		for (int i = 0; i < enemies.size(); ++i){
 			enemies[i].Render();
 		}
 		for (int i = 0; i < pbullets.size(); ++i){
-			pbullets[i].Render();
+			pbullets[i].Render(player.getx(), player.gety());
 		}
-		
+		glPopMatrix();
 		ostringstream intconv;
 		intconv << score;
 		DrawStr(fonttex, "Score: " + intconv.str(), 0.1, -0.06, 1, 1, 1, 1, -0.95, 0.95);
@@ -289,11 +295,12 @@ void Game::RUN(){
 				if (event.key.keysym.scancode == SDL_SCANCODE_SPACE){
 					if (state == 0){
 						state = 1;
-						player.setPos(0, 0);
+						player.setPos(-4, 0);
 						player.activate();
 						score = 0;
 						lastroundframes = 1;
 						kcount = 0;
+						Mix_PlayMusic(music, -1);
 					}
 					else if (state == 1){
 						if (pbullets.size() < 30){

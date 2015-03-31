@@ -7,10 +7,11 @@
 #include "Physics.h"
 #include "Graphic.h"
 #include <sstream>
+#include <SDL_mixer.h>
 using namespace std;
 #include "Object.h"
 
-#define bulvel 0.7
+#define bulvel 1.2
 #define adlen 0.03
 #define FIXED_TIMESTEP 0.033333f
 #define TILE_SIZE 0.075
@@ -28,6 +29,42 @@ rotation(0)
 }
 Entity::~Entity(){
 
+}
+void Entity::ScrollDraw(float px, float py){
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, tex);
+
+	glMatrixMode(GL_MODELVIEW);
+
+	glLoadIdentity();
+	glTranslatef(getx() - px, gety() - py, 0.0);
+	glRotatef(rotation, 0.0, 0.0, 1.0);
+
+	GLfloat quad[] = { -width, height, -width, -height, width, -height, width, height };
+	glVertexPointer(2, GL_FLOAT, 0, quad);
+	glEnableClientState(GL_VERTEX_ARRAY);
+
+	float u = (float)(((int)index) % SCX) / (float)SCX;
+	float v = (float)(((int)index) / SCX) / (float)SCY;
+
+
+
+	float spriteWidth = 1.0 / (float)SCX;
+	float spriteHeight = 1.0 / (float)SCY;
+	GLfloat quadUVs[] = { u, v,
+		u, v + spriteHeight,
+		u + spriteWidth, v + spriteHeight,
+		u + spriteWidth, v
+	};
+	glTexCoordPointer(2, GL_FLOAT, 0, quadUVs);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glDrawArrays(GL_QUADS, 0, 4);
+	glDisable(GL_TEXTURE_2D);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 void Entity::Draw(){
 	glEnable(GL_TEXTURE_2D);
@@ -152,15 +189,21 @@ Bullet::Bullet(int tex, float xp, float yp, float h, float w, bool rmov) : Entit
 Bullet::~Bullet(){
 
 }
-void Bullet::Update(){
+void Bullet::Update(unsigned int** levelData){
 	if (isactive()){
 		move(hspeed * FIXED_TIMESTEP, vspeed * FIXED_TIMESTEP);
 		incRot(FIXED_TIMESTEP * 45);
+		xwallcols(levelData);
 	}
 }
 void Bullet::Render(){
 	if (isactive()){
 		Draw();
+	}
+}
+void Bullet::Render(float px, float py){
+	if (isactive()){
+		ScrollDraw(px, py);
 	}
 }
 
@@ -170,6 +213,20 @@ void Bullet::setDir(bool right){
 	}
 	else{
 		hspeed = -bulvel;
+	}
+}
+void Bullet::xwallcols(unsigned int** walls){
+	pair<int, int> left;
+	pair<int, int> right;
+	left = worldToTileCoordinates(lx(), gety());
+	right = worldToTileCoordinates(rx(), gety());
+	if (walls[right.second][right.first] > 0){
+
+		deactivate();
+	}
+	if (walls[left.second][left.first] > 0){
+
+		deactivate();
 	}
 }
 
@@ -186,11 +243,15 @@ vspeed(0),
 haccel(0.6),
 xfric(0.7)
 {
+	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
+	jSound = Mix_LoadWAV("jSound.wav");
+	sSound = Mix_LoadWAV("sSound.wav");
 	sheetDets(12, 8);
 	updateInd(27);
 }
 Player::Player()
 :Entity(0, 0, 0, 0, 0){
+
 	deactivate();
 }
 void Player::Shoot(int BTex, vector<Bullet>& bullets){
@@ -200,6 +261,7 @@ void Player::Shoot(int BTex, vector<Bullet>& bullets){
 			Bullet nBull(BTex, getx(), gety(), 0.0375, 0.0375, rface);
 			lastfire = (float)SDL_GetTicks() / 1000.0f;
 			nBull.activate();
+			Mix_PlayChannel(-1, sSound, 0);
 			bullets.push_back(nBull);
 		}
 	}
@@ -213,6 +275,7 @@ void Player::bRepo(int ind, vector<Bullet>& bullets){
 			bullets[ind].activate();
 			bullets[ind].setDir(rface);
 			lastfire = (float)SDL_GetTicks() / 1000.0f;
+			Mix_PlayChannel(-1, sSound, 0);
 		}
 	}
 }
@@ -250,18 +313,19 @@ void Player::Update(unsigned int** tiles){
 }
 void Player::jump(){
 	if (dcol){
+		Mix_PlayChannel(-1, jSound, 0);
 		vspeed = 2;
 	}
 }
 void Player::Render(){
 	if (isactive()){
 		aniframe++;
-		if(aniframe > 300) {
+		if(aniframe > 30) {
 			anind = (anind + 1) % 3;
 			updateInd(Ani[anind]);
 			aniframe = 0;
 		}
-		Draw();
+		ScrollDraw(getx(), gety());
 	}
 }
 bool Player::hit(vector<Bullet>& bullets){
@@ -306,8 +370,8 @@ void Player::xwallcols(unsigned int** walls){
 	}
 	if (walls[left.second][left.first] > 0){
 
-		float test = (left.first) * TILE_SIZE - (TILE_SIZE * 128 / 2);
-		float xpen = fabs(lx() - test);
+		float test = fabs((left.first+1) * TILE_SIZE - (TILE_SIZE * 128 / 2));
+		float xpen = fabs(fabs(lx()) - test);
 		move(xpen + 0.001, 0);
 		hspeed = 0;
 		lcol = true;
@@ -317,14 +381,23 @@ void Player::ywallcols(unsigned int** walls){
 	pair<int, int> up;
 	pair<int, int> down;
 	up = worldToTileCoordinates(getx(), uy());
-	down = worldToTileCoordinates(getx(), dy());
+	down = worldToTileCoordinates(getx(), dy() - 0.003);
+
 	if (walls[down.second][down.first] > 0){
 
 		float test = (down.second) * -TILE_SIZE + (TILE_SIZE * 32 / 2);
 		float ypen = fabs(dy() - test) ;
-		move(0, ypen + 0.001);
 		vspeed = 0;
+		move(0, ypen + 0.002);
 		dcol = true;
+	}
+	if (walls[up.second][up.first] > 0){
+
+		float test = (up.second) * -TILE_SIZE + (TILE_SIZE * 32 / 2);
+		float ypen = fabs(uy() - test);
+		move(0, -ypen - 0.001);
+		vspeed = 0;
+		ucol = true;
 	}
 }
 
@@ -365,6 +438,7 @@ void Enemy::Update(vector<Wall>& walls){
 		ucol = false;
 		dcol = false;
 		vspeed = applygravity(vspeed);
+		vspeed = applyfriction(vspeed, xfric);
 		move(0, vspeed * FIXED_TIMESTEP);
 		ywallcols(walls);
 		hspeed = applyfriction(hspeed, xfric);
@@ -376,7 +450,7 @@ void Enemy::Render(){
 	if (isactive()){
 		aniframe++;
 
-		if (aniframe > 300) {
+		if (aniframe > 30) {
 			anind = (anind + 1) % 3;
 			updateInd(Ani[anind]);
 			aniframe = 0;

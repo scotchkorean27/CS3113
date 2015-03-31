@@ -7,6 +7,9 @@
 
 void DrawLevel(int tex, unsigned int** levelDat, int SCX, int SCY, float TS, int height, int width);
 
+void DrawScrollingLevel(int tex, unsigned int** levelDat, int SCX, int SCY, float TS,
+	int height, int width, float xoff, float yoff);
+
 void DrawStr(
 	int fontTexture, std::string text, float size, float spacing,
 	float r, float g, float b, float a, float x, float y);
