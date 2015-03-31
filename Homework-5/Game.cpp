@@ -89,13 +89,6 @@ void Game::placeEntity(string type, int x, int y){
 		player = p;
 		
 	}
-	else if (type == "Spawner"){
-	}
-	else if (type == "Enemy"){
-		Enemy e(playtex, x, y);
-		e.activate();
-		enemies.push_back(e);
-	}
 }
 bool Game::readEntityData(std::ifstream &stream) {
 	string line;
@@ -174,6 +167,7 @@ void Game::Init(){
 		}
 	}
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
+	//The music is from an RPG called Devil of Decline (good game, pretty decent soundtrack)
 	music = Mix_LoadMUS("DoDWBGM.mp3");
 
 }
@@ -254,6 +248,10 @@ void Game::Render(){
 		DrawStr(fonttex, "Press SPACE to start.", 0.1, -0.06, 1, 1, 1, 1, -0.55, 0);
 	}
 	else if (state == 1){
+		//I chose to do the scrolling a slightly different way.
+		//Instead of having a single translate, I sent in the "camera position" to the object render functions, and had them scroll themselves.
+		//I just kind of like it that way.  
+		//When I did it the other way, it just chose to not render every second bullet, and glRotatef wreaked havoc on everything
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 		DrawScrollingLevel(flotex, levelData, 24, 16, 0.075, mapHeight, mapWidth, -player.getx(), -player.gety());
