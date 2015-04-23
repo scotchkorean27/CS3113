@@ -1,6 +1,5 @@
 #include "Physics.h"
 #include <utility>
-
 using namespace std;
 #define FIXED_TIMESTEP 0.033333f
 #define GRAVCONST 3

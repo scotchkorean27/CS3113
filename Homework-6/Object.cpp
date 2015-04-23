@@ -84,9 +84,16 @@ ParticleEmitter::ParticleEmitter(unsigned int particleCount){
 		p.velocity = pvel;
 	}
 }
-ParticleEmitter::ParticleEmitter(float x, float y){
+ParticleEmitter::ParticleEmitter(float x, float y, bool imp){
 	maxLifetime = 1000;
-	for (int i = 0; i < 30; i++){
+	position.x = x;
+	position.y = y;
+	implode = imp;
+	int max = 20;
+	if (implode){
+		max = 60;
+	}
+	for (int i = 0; i < max; i++){
 		float angle = rand() % 360;
 		float ax = cos(toRads(angle)) / 80;
 		float ay = sin(toRads(angle)) / 80;
@@ -106,26 +113,56 @@ void ParticleEmitter::Update(float elapsed){
 	for (int i = 0; i < particles.size(); i++){
 		particles[i].position.x += particles[i].velocity.x * elapsed;
 		particles[i].position.y += particles[i].velocity.y * elapsed;
-		if (particles[i].lifetime < 0){
+		if (particles[i].lifetime < 0 && !implode){
 			particles[i].lifetime = rand() % 1000;
 			particles[i].position.x = position.x;
 			particles[i].position.y = position.y;
+		}
+		else if (particles[i].lifetime < 0 && implode){
+			particles[i].lifetime = rand() % 100;
+			float angle = rand() % 360;
+			float ax = cos(toRads(angle)) / 80;
+			float ay = sin(toRads(angle)) / 80;
+			Vector pvel(ax, ay, 0);
+			particles[i].velocity = pvel;
+			particles[i].position.x = position.x - particles[i].velocity.x / elapsed;
+			particles[i].position.y = position.y - particles[i].velocity.y / elapsed;
+			particles[i].velocity.x = (position.x - particles[i].position.x) / particles[i].lifetime / elapsed;
+			particles[i].velocity.y = (position.y-particles[i].position.y) / particles[i].lifetime / elapsed;
+		}
+		else if (implode){
+
 		}
 		particles[i].lifetime--;
 	}
 }
 void ParticleEmitter::Render(){
 	std::vector<float> particleVertices;
-
+	std::vector<float> particleColors;
 	for (int i = 0; i < particles.size(); i++) {
 		particleVertices.push_back(particles[i].position.x);
 		particleVertices.push_back(particles[i].position.y);
+		if (implode){
+			particleColors.push_back(1);
+			particleColors.push_back(0);
+			particleColors.push_back(0);
+			particleColors.push_back(1);
+		}
+		else{
+			particleColors.push_back(0);
+			particleColors.push_back(1);
+			particleColors.push_back(1);
+			particleColors.push_back(1);
+		}
 	}
-
+	glColorPointer(4, GL_FLOAT, 0, particleColors.data());
+	glEnableClientState(GL_COLOR_ARRAY);
 	glVertexPointer(2, GL_FLOAT, 0, particleVertices.data());
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glPointSize(5.0);
 	glDrawArrays(GL_POINTS, 0, particleVertices.size() / 2);
+	glDisableClientState(GL_COLOR_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
 }
 void ParticleEmitter::setPos(float x, float y){
  	position.x = x;
@@ -478,7 +515,7 @@ bool Player::hit(vector<Enemy>& bullets){
 }
 
 Enemy::Enemy(int tex, float xp, float yp, int frac)
-: Entity(tex, xp, yp, 0.15 / frac, 0.15 / frac), fraction(frac), pe(0, 0), pframes(0)
+: Entity(tex, xp, yp, 0.15 / frac, 0.15 / frac), fraction(frac), pe(0, 0, false), pframes(0)
 {
 	float vx = rand() % 360 - 180;
 	float vy = rand() % 360 - 180;

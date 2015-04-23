@@ -37,5 +37,11 @@ private:
 	int ebind;
 	int score;
 	int highscore;
+	int parttimer;
+	ParticleEmitter spawnpe;
+	Vector spawnpoint;
+	int shaking;
+	int introani;
 	Mix_Music *music;
+	float perlinValue;
 };

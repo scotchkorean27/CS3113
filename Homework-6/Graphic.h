@@ -6,7 +6,11 @@
 #include <SDL_surface.h>
 #include <vector>
 
+float easeIn(float from, float to, float time);
 
+float easeOutElastic(float from, float to, float time);
+
+float easeInOut(float from, float to, float time);
 
 void DrawStr(
 	int fontTexture, std::string text, float size, float spacing,

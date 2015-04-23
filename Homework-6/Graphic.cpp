@@ -10,8 +10,31 @@
 #include "Graphic.h"
 using namespace std;
 
+float easeIn(float from, float to, float time) {
+	float tVal = time*time*time*time*time;
+	return (1.0f - tVal)*from + tVal*to;
+}
 
+float easeOutElastic(float from, float to, float time) {
+	float p = 0.3f;
+	float s = p / 4.0f;
+	float diff = (to - from);
+	return from + diff + (diff*pow(2.0f, -10.0f*time) * sin((time - s)*(2 * 3.14) / p));
+}
 
+float easeInOut(float from, float to, float time) {
+	float tVal;
+	if (time > 0.5) {
+		float oneMinusT = 1.0f - ((0.5f - time)*-2.0f);
+		tVal = 1.0f - ((oneMinusT * oneMinusT * oneMinusT * oneMinusT *
+			oneMinusT) * 0.5f);
+	}
+	else {
+		time *= 2.0;
+		tVal = (time*time*time*time*time) / 2.0;
+	}
+	return (1.0f - tVal)*from + tVal*to;
+}
 
 void DrawStr(int fontTexture, string text, float size, float spacing, float r, float g, float b, float a, float x, float y) {
 

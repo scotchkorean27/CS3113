@@ -6,12 +6,14 @@
 #include "Game.h"
 #include "Graphic.h"
 #include "Object.h"
+#include "Physics.h"
 #include <ctime>
 #include <sstream>
 #include <vector>
 #include <iostream>
 #include <fstream>
 #include <SDL_mixer.h>
+#include "PerlinNoise.h"
 using namespace std;
 
 #define FIXED_TIMESTEP 0.033333f
@@ -26,7 +28,10 @@ pbind(0),
 ebind(0),
 highscore(0),
 lastespawn(0),
-player(){
+parttimer(0),
+player(),
+spawnpe(0, 0, true),
+spawnpoint(0, 0, 0){
 	Init();
 	RUN();
 
@@ -86,19 +91,35 @@ void Game::Update(){
 		}
 		
 		lastespawn++;
+		
 
-		if (lastespawn > 200 - (score / 4000) * (rand() / RAND_MAX / 2 + 0.5)){
+		if (parttimer < 1){
 			//Spawn enemy
-			Enemy e(astex, 0.9, 0.9, 1);
-			e.activate();
-			enemies.push_back(e);
+			float ang = rand() % 360;
+			Vector v(cos(toRads(ang)), sin(toRads(ang)), 0);
+			spawnpoint = v;
+			ParticleEmitter pe2(spawnpoint.x, spawnpoint.y, true);
+			spawnpe = pe2;
+			parttimer = 200 - (score / 4000) * (rand() / RAND_MAX / 2 + 0.5);
 			lastespawn = 0;
+		}
+
+		if (parttimer > 0){
+			parttimer--;
+			spawnpe.Update(FIXED_TIMESTEP);
+			if (parttimer == 0){
+				Enemy e(astex, spawnpoint.x, spawnpoint.y, 1);
+				e.activate();
+				enemies.push_back(e);
+				
+			}
 		}
 		
 		for (int i = 0; i < enemies.size(); ++i){
 			//Check for enemy kills
 			if (enemies[i].hit(pbullets)){
-				score += enemies[i].explode(enemies);;
+				score += enemies[i].explode(enemies);
+				shaking = 300;
 			}
 			
 		}
@@ -145,9 +166,37 @@ void Game::Render(){
 		for (int i = 0; i < enemies.size(); ++i){
 			enemies[i].Render();
 		}
+		if (parttimer > 0){
+			spawnpe.Render();
+		}
+
+		
+		perlinValue += FIXED_TIMESTEP;
+		float val = 0;
+		float val2 = 0;
+		
+		if (shaking > 0){
+			shaking--;
+			float coord[2] = { perlinValue, 0.0 };
+			val = noise2(coord) * score / 20000;
+
+			coord[1] = 0.5f;
+			val2 = noise2(coord) * score / 20000;
+		}
+		
 		intconv << score;
-		DrawStr(fonttex, "Score: " + intconv.str(), 0.1, -0.06, 1, 1, 1, 1, -0.95, 0.95);
+		DrawStr(fonttex, "Score: " + intconv.str(), 0.1, -0.06, 1, 1, 1, 1, -0.95 + val, 0.95 + val2);
 		intconv.flush();
+		if (introani < 3000){
+			float mval = mapValue(introani, 0, 3000, 0, 1);
+			DrawStr(fonttex, "SPACE to shoot!", 0.1, -0.06, 1, 1, 1, 1, easeOutElastic(1, -0.3, mval), 0);
+			introani++;
+		}
+		else if (introani < 5000){
+			float mval = mapValue(introani, 3000, 5000, 0, 1);
+			DrawStr(fonttex, "SPACE to shoot!", 0.1, -0.06, 1, 1, 1, 1, easeIn(-0.3, -2, mval), 0);
+			introani++;
+		}
 	}
 	else if (state == 2){
 		ostringstream intconv;
@@ -175,7 +224,12 @@ void Game::RUN(){
 						player.setPos(0, 0);
 						player.activate();
 						score = 0;
+						enemies = {};
+						pbullets = {};
+						parttimer = 0;
+						lastespawn = 0;
 						Mix_PlayMusic(music, -1);
+						introani = 0;
 					}
 					else if (state == 1){
 						if (pbullets.size() < 30){

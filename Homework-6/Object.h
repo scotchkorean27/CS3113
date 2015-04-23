@@ -51,17 +51,15 @@ public:
 class ParticleEmitter {
 public:
 	ParticleEmitter(unsigned int particleCount);
-	ParticleEmitter(float x, float y);
+	ParticleEmitter(float x, float y, bool imp);
 	~ParticleEmitter();
-
 	void setPos(float x, float y);
 	void Update(float elapsed);
 	void Render();
 	Vector position;
 	Vector gravity;
 	float maxLifetime;
-	Color startColor;
-	Color endColor;
+	bool implode;
 	std::vector<Particle> particles;
 };
 
