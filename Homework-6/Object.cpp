@@ -220,7 +220,10 @@ void Entity::Draw(){
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glDrawArrays(GL_QUADS, 0, 4);
+	std::vector<unsigned int> indices = { 0, 1, 2, 0, 2, 3 };
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, indices.data());
+
+	//glDrawArrays(GL_QUADS, 0, 4);
 	glDisable(GL_TEXTURE_2D);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glPopMatrix();
