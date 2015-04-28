@@ -1,0 +1,20 @@
+﻿Build started 4/28/2015 5:10:05 AM.
+     1>Project "D:\hw07\NYUCodebase\NYUCodebase.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /IC:\SDL2_mixer\include /IC:\SDL2\include /IC:\SDL2_image\include /IC:\SDL2\lib\x64 /IC:\SDL2_image\lib\x64 /IC:\SDL_mixer\include /IC:\SDL_mixer\include /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Graphic.cpp
+         Graphic.cpp
+     1>d:\hw07\nyucodebase\graphic.cpp(22): warning C4244: 'return' : conversion from 'double' to 'float', possible loss of data
+     1>d:\hw07\nyucodebase\graphic.cpp(34): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\hw07\Debug\NYUCodebase.exe" /INCREMENTAL /NOLOGO /LIBPATH:C:\SDL2_mixer\lib\x86 /LIBPATH:C:\SDL2\lib\x86 /LIBPATH:C:\SDL2_image\lib\x86 /LIBPATH:C:\SDL_mixer\lib\x86 /LIBPATH:C:\SDL_mixer\lib\x86 SDL2_mixer.lib SDL2.lib SDL2main.lib SDL2_image.lib OpenGL32.lib SDL2_mixer.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\hw07\Debug\NYUCodebase.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\hw07\Debug\NYUCodebase.lib" /MACHINE:X86 Debug\Game.obj
+         Debug\Graphic.obj
+         Debug\main.obj
+         Debug\Object.obj
+         Debug\PerlinNoise.obj
+         Debug\Physics.obj
+         NYUCodebase.vcxproj -> D:\hw07\Debug\NYUCodebase.exe
+     1>Done Building Project "D:\hw07\NYUCodebase\NYUCodebase.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:08.45
