@@ -1,17 +1,12 @@
 #I made a game!
 
 #Creative Title (I'm standing by that name) 
-is a split screen side by side bullet hell shooter.
-
-The goal is to send bullets over to your opponent's side of the screen and overwhelm them until they run out of lives.
-
-Note: to play this game, you need a controller.
-
-I used a PS3 controller with the MotionInJoy drivers.
-
-Other controllers should work, but you need to remap them.
-
-The mapping can be found in Game.cpp in the #define section
+is a split screen side by side bullet hell shooter.__
+The goal is to send bullets over to your opponent's side of the screen and overwhelm them until they run out of lives.__
+Note: to play this game, you need a controller.__
+I used a PS3 controller with the MotionInJoy drivers.__
+Other controllers should work, but you need to remap them.__
+The mapping can be found in Game.cpp in the #define section__
 
 
 ##Controls:
