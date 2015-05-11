@@ -16,7 +16,7 @@ Directional Keys: Player 1 Move
 Left-Shift: Player 1 Focus Movement + Defensive Super
 
 
-Keyboard/Player 2:
+Controller/Player 2:
 X (PS3 Controller): Select/Player 2 shoot
 PS3 D-Pad: Player 2 Move
 R1 (PS3 Controller): Player 2 Focus Movement + Defensive Special
