@@ -1,4 +1,4 @@
-#I made a game!
+*I made a game!*
 
 #Creative Title (I'm standing by that name) 
 is a split screen side by side bullet hell shooter.
