@@ -326,12 +326,13 @@ void Game::Update(){
 				hinode2.activate();
 				puppeteer.p1ene.push_back(hinode1);
 				puppeteer.p2ene.push_back(hinode2);
+				apocalypsetimer.beginani(1);
 				lasteneframe = 0;
 			
 		}
 		else if (lasteneframe > 60 && winner == 0 && menu3 == 7){
-			if (gameframes < 5400){
-				int count = gameframes / 1800 + 1;
+			if (apostate == 0){
+				int count = 2 - floor((puppeteer.p1ene[0].getHealth() + puppeteer.p2ene[0].getHealth() - 1000) / 500);
 				for (int i = 0; i < count; i++){
 					if (puppeteer.p1ene.size() - puppeteer.p1buck.size() < 30){
 						int enetexind = mapValue(rand(), 0, RAND_MAX, 1, 6.9);
@@ -367,8 +368,9 @@ void Game::Update(){
 
 				lasteneframe = 0;
 			}
-			else if (gameframes > 5650){
-				for (int i = 0; i < 3; i++){
+			else if (apostate == 2){
+				int count = 3;
+				for (int i = 0; i < count; i++){
 					int enetexind = mapValue(rand(), 0, RAND_MAX, 1, 6.9);
 					if (puppeteer.p1ene.size() - puppeteer.p1buck.size() < 30){
 						if (puppeteer.p1buck.size() == 0){
@@ -408,14 +410,60 @@ void Game::Update(){
 				lasteneframe = 0;
 			}
 		}
+
+		if (apostate == 1 && apospawntimer > -2){
+			apospawntimer--;
+		}
 		if (menu3 == 7){
-			float i = mapValue(gameframes, 0, 5400, 0, 1);
-			float j = mapValue(gameframes, 5500, 10900, 0, 1);
+			float i = 0;
+			float j = 0;
+			if (puppeteer.p1ene.size() > 0 && apostate == 0){
+				i = mapValue(puppeteer.p1ene[0].getHealth() + puppeteer.p2ene[0].getHealth() - 1000, 0, 1000, 0, 1);
+			}
+			else if (puppeteer.p1ene.size() > 0 && apostate == 2){
+				i = mapValue(puppeteer.p1ene[0].getHealth() + puppeteer.p2ene[0].getHealth() - 1500, 0, 750, 0, 1);
+				j = mapValue(puppeteer.p1ene[0].getHealth() + puppeteer.p2ene[0].getHealth() - 1500, 750, 1500, 0, 1);
+			}
 
 			apocalypsetimer.Update(i, j);
 		}
-		if (gameframes == 5400 && menu3 == 7){
+		if (menu3 == 7 && puppeteer.p1ene.size() > 0 && apostate == 2 && puppeteer.p1ene[0].getHealth() + puppeteer.p2ene[0].getHealth() - 1500 <= 0 && puppeteer.p1ene[0].getTier() == 2 && winner == 0){
+			for (int i = 0; i < masterBullets.ec1buls.size(); i++){
+				if (masterBullets.ec1buls[i].isactive()){
+					masterBullets.ec1buls[i].explode();
+					masterBullets.ec1buls[i].deactivate();
+					masterBullets.ec1buck.push(i);
+				}
+			}
+			for (int i = 0; i < masterBullets.ec2buls.size(); i++){
+				if (masterBullets.ec2buls[i].isactive()){
+					masterBullets.ec2buls[i].explode();
+					masterBullets.ec2buls[i].deactivate();
+					masterBullets.ec2buck.push(i);
+				}
+			}
+			for (int i = 0; i < puppeteer.p1ene.size(); i++){
+				if (puppeteer.p1ene[i].isactive()){
+					puppeteer.p1ene[i].deactivate();
+					puppeteer.p1buck.push(i);
+
+				}
+			}
+			for (int i = 0; i < puppeteer.p2ene.size(); i++){
+				if (puppeteer.p2ene[i].isactive()){
+					puppeteer.p2ene[i].deactivate();
+					puppeteer.p2buck.push(i);
+
+				}
+			}
+			winner = 3;
+			texts[6].setText("Winner!");
+			texts[7].setText("Winner!");
+			texts[6].beginani(7);
+			texts[7].beginani(8);
 			Mix_PlayChannel(-1, aesound, 0);
+		}
+		if (menu3 == 7 && puppeteer.p1ene.size() > 0 && apostate == 0 && puppeteer.p1ene[0].getHealth() + puppeteer.p2ene[0].getHealth() - 1000 <= 0 && puppeteer.p1ene[0].getTier() == 1){
 			for (int i = 0; i < masterBullets.ec1buls.size(); i++){
 				if (masterBullets.ec1buls[i].isactive()){
 					masterBullets.ec1buls[i].explode();
@@ -446,10 +494,17 @@ void Game::Update(){
 			}
 			puppeteer.p1buck.pop();
 			puppeteer.p2buck.pop();
+			texts[0].beginani(5);
+			texts[1].beginani(6);
+			apostate = 1;
+			p1t = PTransit();
+			p2t = PTransit();
 			Mix_HaltMusic();	
+			Mix_PlayChannel(-1, aesound, 0);
 		}
-		else if (gameframes == 5500 && menu3 == 7){
+		else if (apospawntimer == 0 && menu3 == 7 && apostate == 1){
 			puppeteer = eCont();
+			masterBullets = bCont();
 			Mix_PlayMusic(music[8], -1);
 			Mix_PlayChannel(-1, a2sound, 0);
 			Enemy hinode1(enetex[8], -0.65, 1, 2);
@@ -459,6 +514,8 @@ void Game::Update(){
 			puppeteer.p1ene.push_back(hinode1);
 			puppeteer.p2ene.push_back(hinode2);
 			lasteneframe = 0;
+			apocalypsetimer.beginani(2);
+			apostate = 2;
 		}
 
 
@@ -524,8 +581,11 @@ void Game::Update(){
 			if (rh == 0){
 				winner = 2;
 				Mix_PlayChannel(-1, aesound, 0);
-				texts[7].beginani(8);
+				texts[7].setText("Loser!");
+				texts[6].setText("Winner!");
 				texts[6].beginani(7);
+				texts[7].beginani(8);
+				
 			}
 		}
 		if (p2.hit(masterBullets.ec2buls, masterBullets.es2buls, masterBullets.ec2buck, masterBullets.es2buck, p2t, masterBullets.pc2fields, masterBullets.fc2buck)){
@@ -538,8 +598,10 @@ void Game::Update(){
 			if (rh == 0){
 				winner = 1;
 				Mix_PlayChannel(-1, aesound, 0);
-				texts[6].beginani(8);
-				texts[7].beginani(7);
+				texts[6].setText("Loser!");
+				texts[7].setText("Winner!");
+				texts[6].beginani(7);
+				texts[7].beginani(8);
 			}
 		}
 		if (texts[0].aniframes == 90){
@@ -973,14 +1035,16 @@ void Game::handleSelect(){
 		p2t = PTransit();
 		gameframes = 0;
 		winner = 0;
+		apostate = 0;
+		apospawntimer = 150;
 		p1 = Player(gamtex[menu], -0.7, -0.7, 1, menu, ftex);
 		p2 = Player(gamtex[menu2], 0.7, -0.7, 2, menu2, ftex);
 		string i("Ready?");
 		string health("5");
 		if (menu3 == 7){
 			i = "WARNING!";
-			p1.damage(-15);
-			p2.damage(-15);
+			p1.damage(-95);
+			p2.damage(-95);
 			health = "20";
 		}
 		texts[0] = stringGraphic(fonttex, i, 0.12, -0.05, 1, 0, 0, 1, -0.8, 0);

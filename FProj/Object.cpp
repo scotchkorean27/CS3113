@@ -1057,12 +1057,12 @@ Enemy::Enemy(int tex, float xp, float yp, int t)
 		firethresh = 30;
 	}
 	if (t == 1){
-		health = 1;
+		health = 1000;
 		firethresh = 50;
 		setRad(0.2);
 	}
 	if (t == 2){
-		health = 1;
+		health = 1500;
 		pnum = 27;
 		setRad(0.6);
 		firethresh = 50;
@@ -1258,9 +1258,7 @@ void Enemy::reinit(int tex, float xp, float yp, int t){
 	activate();
 }
 int Enemy::damage(int i){
-	if (tier == 0){
-		health -= i;
-	}
+	health -= i;
 	return health;
 }
 int Enemy::getHealth(){
@@ -1861,7 +1859,11 @@ void chargeBar::Update(float i, float j){
 chargeBar2::chargeBar2(GLuint bg, GLuint frame, GLuint col, GLuint u, float x, float y)
 	:Entity(0, x, y), back(bg, x, y, 0.035, 1), f(frame, x, y, 0.035, 1), c(col, x, y, 0.02, 0), pfil(u, x, y, 0.02, 0)
 {
-
+	ani = 0;
+}
+void chargeBar2::beginani(int i){
+	ani = i;
+	aniframes = 0;
 }
 void chargeBar2::Render(){
 	back.Draw();
@@ -1870,10 +1872,25 @@ void chargeBar2::Render(){
 	f.Draw();
 }
 void chargeBar2::Update(float i, float j){
-	float rat = mapValue(i, 0, 1, 0, 1);
+	float green = i;
+	float orange = j;
+	if (ani == 1 && aniframes < 100){
+		aniframes++;
+		orange = 0;
+		green = mapValue(aniframes, 0, 100, 0, 1);
+		green = easeInOut(0, 1, green);
+	}
+	else if (ani == 2 && aniframes < 150){
+		aniframes++;
+		green = mapValue(aniframes, 0, 75, 0, 1);
+		green = easeInOut(0, 1, green);
+		orange = mapValue(aniframes, 75, 150, 0, 1);
+		green = easeInOut(0, 1, orange);
+	}
+	float rat = mapValue(green, 0, 1, 0, 1);
 	c.resize(0.02, rat);
 	c.setPos(getx() - 1 + rat, gety());
-	float rat2 = mapValue(j, 0, 1, 0, 1);
+	float rat2 = mapValue(orange, 0, 1, 0, 1);
 	pfil.resize(0.02, rat2);
 	pfil.setPos(getx() - 1 + rat2, gety());
 }
@@ -1954,7 +1971,7 @@ Player::Player(int tex, float xp, float yp, int pnum1, int chara, vector<GLuint>
 }
 void Player::Shoot(std::vector<GLuint> BTex, vector<cBullet>& bullets, queue<int>& bucket){
 	GLuint ctex;
-	float thresh = 0.11;
+	float thresh = 3;
 	ctex = BTex[0];
 	int movt = 0;
 	if (character == 1){
@@ -1977,16 +1994,16 @@ void Player::Shoot(std::vector<GLuint> BTex, vector<cBullet>& bullets, queue<int
 		ctex = BTex[8];
 	}
 	if (character == 2 && focus){
-		thresh = 0.5;
+		thresh = 15;
 		movt = 1;
 	}
 	else if (character == 3 && focus){
-		thresh = 0.2;
+		thresh = 6;
 		movt = 5;
 	}
 
-	float cfire = (float)SDL_GetTicks() / 1000.0f;
-	if (cfire - lastfire > thresh){
+	if (lastfire > thresh){
+		lastfire = 0;
 		if (character == 3 && focus){
 			for (int i = 0; i < 8; i++){
 				float ang = toRads(45 * i);
@@ -2019,13 +2036,13 @@ void Player::Shoot(std::vector<GLuint> BTex, vector<cBullet>& bullets, queue<int
 				bullets.push_back(c);
 			}
 		}
-		lastfire = cfire;
 		Mix_PlayChannel(-1, ssound, 0);
 	}
 
 	
 }
 void Player::Update(PTransit& ptrans, bool foc, bool charging){
+	lastfire++;
 	if (foc && !focus && character == 1){
 		pfield.beginani(1);
 	}

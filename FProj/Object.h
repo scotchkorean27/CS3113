@@ -267,11 +267,14 @@ public:
 	chargeBar2(GLuint bg, GLuint frame, GLuint col, GLuint u, float x, float y);
 	void Render();
 	void Update(float i, float j);
+	void beginani(int i);
 private:
 	Square back;
 	Square f;
 	Square c;
 	Square pfil;
+	int aniframes;
+	int ani;
 };
 
 class Player : public Circle{
@@ -295,7 +298,7 @@ public:
 	int addSpScore(int i);
 	int addSpScore2(int i);
 private:
-	float lastfire;
+	int lastfire;
 	Vector vel;
 	int score;
 	int lives;

@@ -72,4 +72,6 @@ private:
 	Mix_Chunk * aesound;
 	Mix_Chunk * a2sound;
 	Mix_Chunk * dsound;
+	int apostate;
+	int apospawntimer;
 };
