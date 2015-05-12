@@ -67,15 +67,13 @@ However, points obtained this way will NOT contribute to your charge (that would
 While the first 6 stages are mechanically similar, Apocalypse is a special seventh stage.</br>
 Both players begin with 20 lives, instead of 5.</br>
 At the beginning, a boss will spawn on both sides of the screen.</br>
-Hitting the boss will grant points and send bullets to your opponent's side of the screen.</br>
-The boss will regularly spawn regular enemies that must also be dealt with.</br>
-Additionally, the boss will regularly attack with offensive specials.</br>
-The boss can spawn different specials at the same time, and some combinations are especially deadly together!</br>
-The attack patterns will get increasingly difficult over time.</br>
-During apocalypse, a gauge will appear at the top of the screen.  It will fill up over time.</br>
-WHen it's full, the real challenge starts.</br>
-You can work together to survive, or try to push your opponent into oblivion.</br>
-Do your best to survive the end of the world!</br>
+This boss has a shared health pool between both sides.</br>
+Hitting the boss will award points, and send bullets over to the other side.</br>
+Work together to defeat the boss without accidentally overwhelming each other.</br>
+Communication is key here!</br>
+The boss' health bar can be seen at the top of the screen.</br>
+The boss will regularly spawn enemies and fire off offensive specials.</br>
+Work together or against each other.  Survive or conquer Apocalypse.</br>
 
 ##Characters:
 Each character has a unique offensive and defensive skill.
