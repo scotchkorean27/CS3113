@@ -1,0 +1,8 @@
+Object.cpp
+Updated and tweaked the player shooting method.
+
+Apocalypse:
+Before, the challenge involved two players either trying to stay alive or take each other down for 180 seconds.</br>
+Frankly, it was kind of counterintuitive, so I overhauled it.</br>
+Players now have the option of working together to take down a common enemy, but they need to be careful not to get each other killed!.</br>
+Of course, the harder you hit the boss, the more bullets you send over, so teamwork is key here.</br>
