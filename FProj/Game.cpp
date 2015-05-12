@@ -1043,8 +1043,8 @@ void Game::handleSelect(){
 		string health("5");
 		if (menu3 == 7){
 			i = "WARNING!";
-			p1.damage(-95);
-			p2.damage(-95);
+			p1.damage(-15);
+			p2.damage(-15);
 			health = "20";
 		}
 		texts[0] = stringGraphic(fonttex, i, 0.12, -0.05, 1, 0, 0, 1, -0.8, 0);
